@@ -2,6 +2,15 @@
 
 ![SofleKeyboard version 2.1 RGB Keyhive](https://i.imgur.com/Oa6spvZ.png)
 
+### QMK Setup
+
+After you followed [QMK Setup guide](https://beta.docs.qmk.fm/tutorial/newbs_getting_started) you add this keymap to your `qmk_firmaware` repository folder
+
+```bash
+# qmk_firmware
+git submodule add https://github.com/edderrd/qmk-sofle-rgb-v2-keymap keyboards/sofle/keymaps/edder
+```
+
 # Configuring VIA / Vial App
 
 This firmware will not auto-recognize until [PR #1060](https://github.com/the-via/keyboards/pull/1060) is accepted to the VIA keyboard database. For now you must install the new layout:
