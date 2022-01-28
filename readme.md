@@ -2,7 +2,7 @@
 
 ![SofleKeyboard version 2.1 RGB Keyhive](https://i.imgur.com/Oa6spvZ.png)
 
-### QMK Setup
+# QMK Setup
 
 After you followed [QMK Setup guide](https://beta.docs.qmk.fm/tutorial/newbs_getting_started) you add this keymap to your `qmk_firmaware` repository folder
 
