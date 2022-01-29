@@ -17,6 +17,18 @@
 
 #pragma once
 
+#define EE_HANDS
+
+
+// allow to each split have states
+#define SPLIT_OLED_ENABLE
+#define SPLIT_WPM_ENABLE
+#define SPLIT_ST7565_ENABLE
+#define SPLIT_TRANSPORT_MIRROR
+// #define SPLIT_LED_STATE_ENABLE
+// #define SPLIT_LAYER_STATE_ENABLE
+// #define SPLIT_MODS_ENABLE
+
 /* The way how "handedness" is decided (which half is which),
 see https://docs.qmk.fm/#/feature_split_keyboard?id=setting-handedness
 for more options.
@@ -34,11 +46,9 @@ for more options.
 #    define RGBLIGHT_EFFECT_RAINBOW_SWIRL   // 192
 #    define RGBLIGHT_EFFECT_BREATHING       // 348
 #    define RGBLIGHT_EFFECT_KNIGHT          // 336
-#    define RGBLIGHT_EFFECT_SNAKE           // 406
-#    define RGBLIGHT_EFFECT_CHRISTMAS       // 508
-/*
-#define RGBLIGHT_EFFECT_TWINKLE         // 1156
-*/
+// #    define RGBLIGHT_EFFECT_SNAKE           // 406
+// #    define RGBLIGHT_EFFECT_CHRISTMAS       // 508
+// #    define RGBLIGHT_EFFECT_TWINKLE         // 1156
 #endif
 
 // Disabled to save space

@@ -17,22 +17,27 @@
 
 #include QMK_KEYBOARD_H
 
-#include "oled.c"
-#include "encoder.c"
-
-// Base layer is the number of layers CYCLE selects from.
-#define BASE_LAYERS 2
+enum custom_layers {
+    _QWERTY,
+    _LOWER,
+    _RAISE,
+    _ADJUST
+};
 
 enum custom_keycodes {
     PLACEHOLDER = SAFE_RANGE,  // can always be here (4 bytes)
     CYCLE                      // cycle through first BASE_LAYERS (62 bytes)
 };
 
-enum custom_layers {
-    _QWERTY,
-    _LOWER,
-    _RAISE
-};
+// Base layer is the number of layers CYCLE selects from.
+#define BASE_LAYERS 2
+
+
+#ifdef OLED_ENABLE
+    #include "oled.c"
+#endif
+#include "encoder.c"
+
 
 // Extra keys are added for rotary encoder support in VIA
 #define LAYOUT_via( \
@@ -91,7 +96,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |------+------+------+------+------+------|       |< E >|       |------+------+------+------+------+------|
  * | Shift|  =   |  -   |  +   |   {  |   }  |-------|  R  |-------|   [  |   ]  |   ;  |   :  |   \  | Shift|
  * `-----------------------------------------/       /      \      \-----------------------------------------'
- *            | LGUI | LAlt | LCTR |LOWER | /Enter  /        \Space \  |RAISE | RCTR | RAlt | RGUI |
+ *            | LGUI | LAlt | LCTR |LOWER | /Enter  /        \Space \  |ADJUST| RCTR | RAlt | RGUI |
  *            |      |      |      |      |/       /          \      \ |      |      |      |      |
  *            `-----------------------------------'            '------''---------------------------'
  */
@@ -100,8 +105,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   KC_GRV , KC_1   , KC_2   , KC_3   , KC_4   , KC_5   , _______,       _______, KC_6   , KC_7   , KC_8   , KC_9   , KC_0   , KC_F12 ,
   _______, KC_EXLM, KC_AT  , KC_HASH, KC_DLR , KC_PERC, _______,       _______, KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN, KC_PIPE,
   _______, KC_EQL , KC_MINS, KC_PLUS, KC_LCBR, KC_RCBR, _______,       _______, KC_LBRC, KC_RBRC, KC_SCLN, KC_COLN, KC_BSLS, _______,
-                  _______, _______, _______, _______, _______,           _______, _______, _______, _______, _______
+                  _______, _______, _______, _______, _______,           _______,MO(_ADJUST), _______, _______, _______
 ),
+
 /* RAISE
  * ,----------------------------------------.                      ,-----------------------------------------.
  * |Cycle |      |      |      |      |      |-------.  E  ,-------|OSTog |      |      |      |      |
@@ -117,7 +123,29 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  *            `----------------------------------'             '------''---------------------------'
  */
 [_RAISE] = LAYOUT_via(
-    CYCLE, _______, _______, _______, _______ , _______,                       CG_TOGG, _______, _______, _______, _______, _______,
+  _______, _______, _______, _______, _______ , _______,                       CG_TOGG, _______, _______, _______, _______, _______,
+  _______, KC_INS , KC_PSCR, KC_APP , XXXXXXX , XXXXXXX, _______,    _______,  KC_PGUP, _______, KC_UP  , _______, _______, KC_BSPC,
+  KC_CAPS, KC_LALT, KC_LCTL, KC_LSFT, XXXXXXX , _______, _______,    _______,  KC_PGDN, KC_LEFT, KC_DOWN, KC_RGHT, KC_DEL , KC_BSPC,
+  _______, KC_UNDO, KC_CUT , KC_COPY, KC_PASTE, XXXXXXX, _______,    _______,  XXXXXXX, _______, XXXXXXX, _______, XXXXXXX, _______,
+                   _______, _______, _______,MO(_ADJUST), _______,        _______, _______, _______, _______, _______
+),
+
+/* ADJUST
+ * ,----------------------------------------.                      ,-----------------------------------------.
+ * |Cycle |      |      |      |      |      |-------.  E  ,-------|OSTog |      |      |      |      |
+ * |------+------+------+------+------+------|       |< N >|       |------+------+------+------+------+------|
+ * | Esc  | Ins  | Pscr | Menu |      |      |-------.  C  ,-------|      |      |  Up  |      | DLine| Bspc |
+ * |------+------+------+------+------+------|       |< O >|       |------+------+------+------+------+------|
+ * | CAPS | LAt  | LCtl |LShift|      |      |-------.  D  ,-------|      | Left | Down | Rigth|  Del | Bspc |
+ * |------+------+------+------+------+------|       |< E >|       |------+------+------+------+------+------|
+ * |Shift | Undo |  Cut | Copy | Paste|      |-------|  R  |-------|      | LStr |      | LEnd |      | Shift|
+ * `-----------------------------------------/      /       \      \-----------------------------------------'
+ *            | LGUI | LAlt | LCTR |LOWER | /Enter /         \Space \  |RAISE | RCTR | RAlt | RGUI |
+ *            |      |      |      |      |/      /           \      \ |      |      |      |      |
+ *            `----------------------------------'             '------''---------------------------'
+ */
+[_ADJUST] = LAYOUT_via(
+  _______, _______, _______, _______, _______ , _______,                       CG_TOGG, _______, _______, _______, _______, _______,
   _______, KC_INS , KC_PSCR, KC_APP , XXXXXXX , XXXXXXX, _______,    _______,  KC_PGUP, _______, KC_UP  , _______, _______, KC_BSPC,
   KC_CAPS, KC_LALT, KC_LCTL, KC_LSFT, XXXXXXX , _______, _______,    _______,  KC_PGDN, KC_LEFT, KC_DOWN, KC_RGHT, KC_DEL , KC_BSPC,
   _______, KC_UNDO, KC_CUT , KC_COPY, KC_PASTE, XXXXXXX, _______,    _______,  XXXXXXX, _______, XXXXXXX, _______, XXXXXXX, _______,

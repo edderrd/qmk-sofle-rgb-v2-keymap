@@ -17,69 +17,128 @@
 
 //Sets up what the OLED screens display.
 
-#ifdef OLED_ENABLE
 
+/* 32 * 32 logo */
 static void render_logo(void) {
-    static const char PROGMEM qmk_logo[] = {
-        0x80,0x81,0x82,0x83,0x84,0x85,0x86,0x87,0x88,0x89,0x8a,0x8b,0x8c,0x8d,0x8e,0x8f,0x90,0x91,0x92,0x93,0x94,
-        0xa0,0xa1,0xa2,0xa3,0xa4,0xa5,0xa6,0xa7,0xa8,0xa9,0xaa,0xab,0xac,0xad,0xae,0xaf,0xb0,0xb1,0xb2,0xb3,0xb4,
-        0xc0,0xc1,0xc2,0xc3,0xc4,0xc5,0xc6,0xc7,0xc8,0xc9,0xca,0xcb,0xcc,0xcd,0xce,0xcf,0xd0,0xd1,0xd2,0xd3,0xd4,0
+    static const char PROGMEM raw_logo[] = {
+        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,192, 32, 64,128,128,128, 64, 32,192,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,224, 28,  3,  0,  4,  0, 16,  8, 16,  0,  4,  0,  3, 28,224,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,126,129,  0,  0,  0,224,  0,192,  0,  0,192,  0,224,  0,  0,129,126, 64, 72, 52,132,120,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  3,  2,  3,  1,  1,  3,  2,  3,  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  0,  0,
     };
+    oled_write_raw_P(raw_logo, sizeof(raw_logo));
+}
 
-    oled_write_P(qmk_logo, false);
+/* 32 * 14 os logos */
+static const char PROGMEM windows_logo[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xbc, 0xbc, 0xbe, 0xbe, 0x00, 0xbe, 0xbe, 0xbf, 0xbf, 0xbf, 0xbf, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07, 0x07, 0x0f, 0x0f, 0x00, 0x0f, 0x0f, 0x1f, 0x1f, 0x1f, 0x1f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+static const char PROGMEM mac_logo[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xc0, 0xf0, 0xf8, 0xf8, 0xf8, 0xf0, 0xf6, 0xfb, 0xfb, 0x38, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x07, 0x0f, 0x1f, 0x1f, 0x0f, 0x0f, 0x1f, 0x1f, 0x0f, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+char wpm[16];
+
+// Function to draw pixels when keys are pressed. Call this in oled_task_user
+
+#define MATRIX_DISPLAY_X 8
+#define MATRIX_DISPLAY_Y 110
+
+static void print_matrix(void){
+    for (uint8_t x = 0; x < MATRIX_ROWS; x++) {
+        for (uint8_t y = 0; y < MATRIX_COLS; y++) {
+            if (x >= 5) {
+                oled_write_pixel(MATRIX_DISPLAY_X - y + 14, MATRIX_DISPLAY_Y + x - 3,(matrix_get_row(x) & (1 << y))> 0);
+            } else {
+                oled_write_pixel(MATRIX_DISPLAY_X + y + 2, MATRIX_DISPLAY_Y + x + 2,(matrix_get_row(x) & (1 << y))> 0);
+            }
+        }
+    }
+
+    for (uint8_t x = 0; x < 18; x++) {
+        oled_write_pixel(MATRIX_DISPLAY_X + x, MATRIX_DISPLAY_Y - 2,true);
+        oled_write_pixel(MATRIX_DISPLAY_X + x, MATRIX_DISPLAY_Y + 9,true);
+    }
+    for (uint8_t y = 0; y < 9; y++) {
+        oled_write_pixel(MATRIX_DISPLAY_X - 1, MATRIX_DISPLAY_Y + y - 1, true);
+        oled_write_pixel(MATRIX_DISPLAY_X + 18, MATRIX_DISPLAY_Y + y - 1, true);
+    }
+}
+
+static void print_logo_narrow(void) {
+    render_logo();
+
+    uint8_t n = get_current_wpm();
+    char    wpm_str[4];
+    oled_set_cursor(0, 14);
+    wpm_str[3] = '\0';
+    wpm_str[2] = '0' + n % 10;
+    wpm_str[1] = '0' + (n /= 10) % 10;
+    wpm_str[0] = '0' + n / 10;
+    oled_write(" ", false);
+    oled_write(wpm_str, false);
+
+    oled_set_cursor(0, 15);
+    oled_write(" WPM", false);
 }
 
 static void print_status_narrow(void) {
-    // Print current mode
-    oled_write_P(PSTR("\n\n"), false);
+    /* Print current mode */
+    oled_set_cursor(0, 0);
+    if (keymap_config.swap_lctl_lgui) {
+        oled_write_raw_P(mac_logo, sizeof(mac_logo));
+    } else {
+        oled_write_raw_P(windows_logo, sizeof(windows_logo));
+    }
+
+    oled_set_cursor(0, 3);
 
     switch (get_highest_layer(default_layer_state)) {
-        case 0: // _QWERTY
-            oled_write_ln_P(PSTR("Qwrt\n"), false);
+        case _QWERTY:
+            // oled_write("QWRTY", false);
+            oled_write("\n", false);
             break;
-        case 1: // _COLEMAK
-            oled_write_ln_P(PSTR("Clmk\n"), false);
-            break;
+        // case _GAMING:
+        //     oled_write("GAMES", false);
+        //     break;
         default:
-            oled_write_P(PSTR("Mod"), false);
-            break;
+            oled_write("UNDEF", false);
     }
-    oled_write_P(PSTR("\n\n"), false);
-    // Print current layer
-    oled_write_ln_P(PSTR("LAYER"), false);
+
+    oled_set_cursor(0, 5);
+
+    /* Print current layer */
+    oled_write("LAYER", false);
+
+    oled_set_cursor(0, 6);
+
     switch (get_highest_layer(layer_state)) {
-        case 0: // _QWERTY
-        case 1: // _COLEMAK
-            oled_write_P(PSTR("Base\n"), false);
+        case _QWERTY:
+            oled_write("Base ", false);
             break;
-        case 2:
-            oled_write_P(PSTR("Lower"), false);
+        case _RAISE:
+            oled_write("Raise", false);
             break;
-        case 3:
-            oled_write_P(PSTR("Raise"), false);
+        case _LOWER:
+            oled_write("Lower", false);
+            break;
+        case _ADJUST:
+            oled_write("Adj  ", false);
             break;
         default:
-            oled_write_ln_P(PSTR("Undef"), false);
+            oled_write("Undef", false);
     }
-    oled_write_P(PSTR("\n\n"), false);
+
+    /* caps lock */
     led_t led_usb_state = host_keyboard_led_state();
-    oled_write_ln_P(PSTR("CPSLK"), led_usb_state.caps_lock);
+    oled_set_cursor(0, 9);
+    oled_write("CPSLK", led_usb_state.caps_lock);
+
+    print_matrix();
 }
 
-oled_rotation_t oled_init_user(oled_rotation_t rotation) {
-    if (is_keyboard_master()) {
-        return OLED_ROTATION_270;
-    }
-    return rotation;
-}
+oled_rotation_t oled_init_user(oled_rotation_t rotation) { return OLED_ROTATION_270; }
 
 bool oled_task_user(void) {
     if (is_keyboard_master()) {
         print_status_narrow();
     } else {
-        render_logo();
+        print_logo_narrow();
     }
     return false;
 }
 
-#endif
