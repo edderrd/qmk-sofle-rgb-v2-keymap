@@ -56,3 +56,9 @@ Disconnect the first half, connect the second one and repeat the process.
     make sofle/keyhive:edder:dfu-split-right
 
 See the [build environment setup](https://docs.qmk.fm/#/getting_started_build_tools) and the [make instructions](https://docs.qmk.fm/#/getting_started_make_guide) for more information. Brand new to QMK? Start with our [Complete Newbs Guide](https://docs.qmk.fm/#/newbs).
+
+
+# Screenshots
+
+![Screenshot 1](./docs/screenshot-1.png)
+![Screenshot 2](./docs/screenshot-2.png)
